@@ -14,6 +14,13 @@ public class BaseService {
         exchange.getIn().setHeader("Accept", "application/json");
     }
 
+    protected void setupOctetStreamResponse(Exchange exchange, String code, byte[] data) {
+        exchange.getIn().setBody(data, byte[].class);
+        exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, code);
+        exchange.getIn().setHeader("Content-Type", "application/octet-stream");
+        exchange.getIn().setHeader("Accept", "application/octet-stream");
+    }
+
     protected void setupError(String code, String message) {
         ClientError clientError = new ClientError(code, message);
         throw new ServiceErrorException(code, JsonUtil.toJson(clientError));

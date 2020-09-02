@@ -35,11 +35,9 @@ public class GetFileService extends BaseService {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             file.download(outputStream);
             final byte[] bytes = outputStream.toByteArray();
-            exchange.getIn().setBody(bytes);
-            exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
-            exchange.getIn().setHeader("Content-Type", "application/octet-stream");
             String fileNameSuggestion = String.format("attachment; filename=\"%s\"", fileName);
             exchange.getIn().setHeader("Content-Disposition", fileNameSuggestion);
+            setupOctetStreamResponse(exchange, "200", bytes);
         } catch (Exception ex) {
             setupError("500", "Download error");
         }
