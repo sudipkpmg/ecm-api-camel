@@ -10,7 +10,6 @@ import gov.tn.dhs.ecm.exception.ServiceErrorException;
 import gov.tn.dhs.ecm.model.CitizenMetadata;
 import gov.tn.dhs.ecm.model.FolderCreationSuccessResponse;
 import gov.tn.dhs.ecm.util.ConnectionHelper;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,9 +77,9 @@ public class CreateFolderService extends BaseService {
             Metadata metadata = new Metadata(jsonObject);
             try {
                 boxFolder.createMetadata(appProperties.getCitizenFolderMetadataTemplateName(), appProperties.getCitizenFolderMetadataTemplateScope(), metadata);
-                folderCreationSuccessResponse.setMetadata_status("metadata successfully applied");
             } catch (Exception e) {
-                folderCreationSuccessResponse.setMetadata_status("metadata could not be applied");
+                boxFolder.delete(false);
+                setupError("400", "Some of the parameters are missing or not valid");
             }
 
             createSubFolder(api, "notifications", boxFolder, metadata);
