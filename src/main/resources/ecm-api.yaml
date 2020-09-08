@@ -257,27 +257,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClientError'
-#  /metadata_search:
-#    post:
-#      description: search using citizen metadata
-#      requestBody:
-#        content:
-#          application/json:
-#            schema:
-#              $ref: '#/components/schemas/MetadataSearchRequest'
-#      responses:
-#        '200':
-#          description: File or Folder obtained
-#          content:
-#            application/json:
-#              schema:
-#                $ref: '#/components/schemas/SearchResult'
-#        '500':
-#          description: No match obtained
-#          content:
-#            application/json:
-#              schema:
-#                $ref: '#/components/schemas/ClientError'
 components:
   schemas:
     FolderCreationSuccessResponse:
@@ -488,12 +467,19 @@ components:
     DocumentDeletionRequest:
       type: object
       required:
+        - folderId
         - documentId
         - loggedOnUser
       properties:
+        folderId:
+          type: string
+          required: true
         documentId:
           type: string
           required: true
+        verified:
+          type: boolean
+          default: false
         loggedOnUser:
           type: string
           required: true
@@ -519,19 +505,4 @@ components:
       properties:
         previewUrl:
           type: string
-#    MetadataSearchRequest:
-#      type: object
-#      properties:
-#        documentTypeMetadata:
-#          $ref: '#/components/schemas/DocumentTypeMetadata'
-#        documentConfidentialityMetadata:
-#          $ref: '#/components/schemas/DocumentConfidentialityMetadata'
-#        documentVerificationMetadata:
-#          $ref: '#/components/schemas/DocumentVerificationMetadata'
-#        caseFaSnapMetadata:
-#          $ref: '#/components/schemas/DocumentFaSnapCaseMetadata'
-#        caseChildCareMetadata:
-#          $ref: '#/components/schemas/DocumentChildCareCaseMetadata'
-
-
 
