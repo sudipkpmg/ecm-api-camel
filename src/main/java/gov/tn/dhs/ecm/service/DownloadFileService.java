@@ -3,14 +3,11 @@ package gov.tn.dhs.ecm.service;
 import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxDeveloperEditionAPIConnection;
 import com.box.sdk.BoxFile;
-import gov.tn.dhs.ecm.model.ClientError;
 import gov.tn.dhs.ecm.model.FileDownloadRequest;
-import gov.tn.dhs.ecm.model.FolderCreationSuccessResponse;
 import gov.tn.dhs.ecm.util.ConnectionHelper;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -18,10 +15,13 @@ import java.io.ByteArrayOutputStream;
 @Service
 public class DownloadFileService extends BaseService {
 
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private static final Logger logger = LoggerFactory.getLogger(DownloadFileService.class);
 
-    @Autowired
-    private ConnectionHelper connectionHelper;
+    private final ConnectionHelper connectionHelper;
+
+    public DownloadFileService(ConnectionHelper connectionHelper) {
+        this.connectionHelper = connectionHelper;
+    }
 
     public void downloadFile(Exchange exchange) {
         FileDownloadRequest fileDownloadRequest = exchange.getIn().getBody(FileDownloadRequest.class);

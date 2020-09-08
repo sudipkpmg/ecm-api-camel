@@ -5,29 +5,30 @@ import com.box.sdk.BoxDeveloperEditionAPIConnection;
 import com.box.sdk.BoxFile;
 import com.box.sdk.BoxFolder;
 import gov.tn.dhs.ecm.config.AppProperties;
-import gov.tn.dhs.ecm.model.ClientError;
-import gov.tn.dhs.ecm.model.FolderCreationSuccessResponse;
 import gov.tn.dhs.ecm.model.UploadFileResponse;
 import gov.tn.dhs.ecm.util.ConnectionHelper;
 import gov.tn.dhs.ecm.util.JsonUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
-import org.apache.camel.spi.RestConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
 import java.io.InputStream;
 
 @Service
-@Slf4j
 public class UploadFileService extends BaseService {
 
-    @Autowired
-    ConnectionHelper connectionHelper;
+    private static final Logger logger = LoggerFactory.getLogger(UploadFileService.class);
 
-    @Autowired
-    AppProperties appProperties;
+    private final ConnectionHelper connectionHelper;
+
+    private final AppProperties appProperties;
+
+    public UploadFileService(ConnectionHelper connectionHelper, AppProperties appProperties) {
+        this.connectionHelper = connectionHelper;
+        this.appProperties = appProperties;
+    }
 
     public void uploadFile(Exchange exchange) throws Exception {
         String boxFolderId = exchange.getIn().getBody(String.class);

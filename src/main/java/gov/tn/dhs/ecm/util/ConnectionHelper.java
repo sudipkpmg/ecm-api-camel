@@ -3,14 +3,16 @@ package gov.tn.dhs.ecm.util;
 import com.box.sdk.BoxConfig;
 import com.box.sdk.BoxDeveloperEditionAPIConnection;
 import gov.tn.dhs.ecm.config.AppProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConnectionHelper {
 
-    @Autowired
-    private AppProperties appProperties;
+    private final AppProperties appProperties;
+
+    public ConnectionHelper(AppProperties appProperties) {
+        this.appProperties = appProperties;
+    }
 
     public BoxDeveloperEditionAPIConnection getBoxDeveloperEditionAPIConnection() {
         String clientId = appProperties.getClientID();

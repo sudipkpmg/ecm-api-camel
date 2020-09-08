@@ -7,30 +7,42 @@ import gov.tn.dhs.ecm.service.*;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 class EcmApiRoutes extends RouteBuilder {
 
-    @Autowired
-    public CreateFolderService createFolderService;
+    public final CreateFolderService createFolderService;
 
-    @Autowired
-    public GetFileService getFileService;
+    public final DownloadFileService downloadFileService;
 
-    @Autowired
-    public DownloadFileService downloadFileService;
+    public final UploadFileService uploadFileService;
 
-    @Autowired
-    public UploadFileService uploadFileService;
+    public final SearchService searchService;
 
-    @Autowired
-    public SearchService searchService;
+    public final DeleteDocumentService deleteDocumentService;
+
+    public final DocumentViewService viewDocumentService;
 
     @Value("${server.port}")
     String serverPort;
+
+    public EcmApiRoutes(
+            CreateFolderService createFolderService,
+            DownloadFileService downloadFileService,
+            UploadFileService uploadFileService,
+            SearchService searchService,
+            DeleteDocumentService deleteDocumentService,
+            DocumentViewService viewDocumentService
+    ) {
+        this.createFolderService = createFolderService;
+        this.downloadFileService = downloadFileService;
+        this.uploadFileService = uploadFileService;
+        this.searchService = searchService;
+        this.deleteDocumentService = deleteDocumentService;
+        this.viewDocumentService = viewDocumentService;
+    }
 
     @Override
     public void configure() {
@@ -72,26 +84,39 @@ class EcmApiRoutes extends RouteBuilder {
 
         defineCreateFolderPath();
 
-        defineGetFilePath();
-
         defineDownloadFilePath();
 
         defineUploadFilePath();
 
         defineSearchPath();
 
+        defineDeleteDocumentPath();
+
+        defineViewDocumentPath();
+
     }
 
-    private void defineSearchPath() {
+    private void defineStatusPath() {
         rest()
-                .post("/search")
-                .type(Query.class)
-                .to("direct:searchService")
-                .outType(SearchResult.class)
+                .get("/")
+                .to("direct:runningStatus")
         ;
-        from("direct:searchService")
-                .bean(searchService, "search")
-                .outputType(SearchResult.class)
+        from("direct:runningStatus")
+                .transform().simple("TNDHS ECM API is running")
+                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
+                .endRest()
+        ;
+    }
+
+    private void defineCreateFolderPath() {
+        rest()
+                .post("/create_folder")
+                .type(CitizenMetadata.class)
+                .outType(FolderCreationSuccessResponse.class)
+                .to("direct:createFolderService")
+        ;
+        from("direct:createFolderService")
+                .bean(createFolderService, "createFolder")
                 .endRest()
         ;
     }
@@ -109,47 +134,12 @@ class EcmApiRoutes extends RouteBuilder {
                 ;
     }
 
-    private void defineGetFilePath() {
-        rest()
-                .get("/get_file/{fileId}")
-                .outType(byte[].class)
-                .to("direct:getFileService")
-        ;
-        from("direct:getFileService")
-                .bean(getFileService, "getFile")
-                .endRest()
-        ;
-    }
-
-    private void defineStatusPath() {
-        rest()
-                .get("/")
-                .to("direct:runningStatus")
-        ;
-        from("direct:runningStatus")
-                .transform().simple("TNDHS ECM API is running")
-                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200));
-    }
-
-    private void defineCreateFolderPath() {
-        rest()
-                .post("/createFolder")
-                .type(FolderCreationRequest.class)
-                .to("direct:createFolderService")
-                .outType(FolderCreationSuccessResponse.class)
-        ;
-        from("direct:createFolderService")
-                .bean(createFolderService, "createFolder")
-                .endRest()
-        ;
-    }
-
     private void defineUploadFilePath() {
         rest()
                 .bindingMode(RestBindingMode.off)
                 .post("/upload_file")
-                .to("direct:uploadFile")
                 .outType(UploadFileResponse.class)
+                .to("direct:uploadFile")
         ;
         from("direct:uploadFile")
                 .unmarshal()
@@ -157,7 +147,45 @@ class EcmApiRoutes extends RouteBuilder {
                 .bean(uploadFileService, "uploadFile")
                 .endRest()
         ;
+    }
 
+    private void defineSearchPath() {
+        rest()
+                .post("/search")
+                .type(Query.class)
+                .outType(SearchResult.class)
+                .to("direct:searchService")
+        ;
+        from("direct:searchService")
+                .bean(searchService, "search")
+                .endRest()
+        ;
+    }
+
+    private void defineDeleteDocumentPath() {
+        rest()
+                .post("/delete_document")
+                .type(DocumentDeletionRequest.class)
+                .outType(DocumentDeletionResult.class)
+                .to("direct:deleteDocumentService")
+        ;
+        from("direct:deleteDocumentService")
+                .bean(deleteDocumentService, "deleteDocument")
+                .endRest()
+        ;
+    }
+
+    private void defineViewDocumentPath() {
+        rest()
+                .post("/view_document")
+                .type(DocumentViewRequest.class)
+                .outType(DocumentViewResult.class)
+                .to("direct:viewDocumentService")
+        ;
+        from("direct:viewDocumentService")
+                .bean(viewDocumentService, "viewDocument")
+                .endRest()
+        ;
     }
 
 }

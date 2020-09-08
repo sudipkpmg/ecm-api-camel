@@ -1,0 +1,29 @@
+package gov.tn.dhs.ecm.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class DocumentViewRequest {
+
+    @JsonProperty("documentId")
+    private String documentId;
+
+    @JsonProperty("logonUserId")
+    private String logonUserId;
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
+
+    public String getLogonUserId() {
+        return logonUserId;
+    }
+
+    public void setLogonUserId(String logonUserId) {
+        this.logonUserId = logonUserId;
+    }
+}
+

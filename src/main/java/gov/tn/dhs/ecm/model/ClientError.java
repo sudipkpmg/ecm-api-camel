@@ -1,11 +1,7 @@
 package gov.tn.dhs.ecm.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
-@Data
-@AllArgsConstructor
 public class ClientError {
 
     @JsonProperty("code")
@@ -14,4 +10,24 @@ public class ClientError {
     @JsonProperty("message")
     private String message;
 
+    public ClientError(String code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }
