@@ -4,7 +4,6 @@ import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxDeveloperEditionAPIConnection;
 import com.box.sdk.BoxFile;
 import com.box.sdk.BoxFolder;
-import gov.tn.dhs.ecm.config.AppProperties;
 import gov.tn.dhs.ecm.model.UploadFileResponse;
 import gov.tn.dhs.ecm.util.ConnectionHelper;
 import gov.tn.dhs.ecm.util.JsonUtil;
@@ -23,11 +22,8 @@ public class UploadFileService extends BaseService {
 
     private final ConnectionHelper connectionHelper;
 
-    private final AppProperties appProperties;
-
-    public UploadFileService(ConnectionHelper connectionHelper, AppProperties appProperties) {
+    public UploadFileService(ConnectionHelper connectionHelper) {
         this.connectionHelper = connectionHelper;
-        this.appProperties = appProperties;
     }
 
     public void uploadFile(Exchange exchange) throws Exception {
