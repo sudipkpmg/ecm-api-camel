@@ -121,6 +121,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SearchResult'
+        '400':
+          description: Some of the parameters are missing or not valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientError'
         '403':
           description: User does not have the required access to perform the action.
           content:
@@ -128,7 +134,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ClientError'
         '404':
-          description: 'The parent folder could not be found, or the authenticated user does not have access to the parent folder.'
+          description: Folder not found
           content:
             application/json:
               schema:
@@ -153,10 +159,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/MetadataAdditionResponse'
         '409':
           description: File not existing error
           content:
@@ -183,10 +186,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/MetadataUpdationResponse'
         '409':
           description: File not existing error
           content:
@@ -455,6 +455,11 @@ components:
           $ref: '#/components/schemas/DocumentFaSnapCaseMetadata'
         caseChildCareMetadata:
           $ref: '#/components/schemas/DocumentChildCareCaseMetadata'
+    MetadataAdditionResponse:
+      type: object
+      properties:
+        message:
+          type: string
     MetadataUpdationRequest:
       type: object
       properties:
@@ -464,6 +469,11 @@ components:
           $ref: '#/components/schemas/DocumentFaSnapCaseMetadata'
         caseChildCareMetadata:
           $ref: '#/components/schemas/DocumentChildCareCaseMetadata'
+    MetadataUpdationResponse:
+      type: object
+      properties:
+        message:
+          type: string
     DocumentDeletionRequest:
       type: object
       required:
