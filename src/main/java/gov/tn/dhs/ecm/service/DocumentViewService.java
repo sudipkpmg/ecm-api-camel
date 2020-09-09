@@ -6,30 +6,24 @@ import com.box.sdk.BoxFile;
 import gov.tn.dhs.ecm.model.DocumentViewRequest;
 import gov.tn.dhs.ecm.model.DocumentViewResult;
 import gov.tn.dhs.ecm.util.ConnectionHelper;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
 
 @Service
-@Slf4j
 public class DocumentViewService extends BaseService {
 
-    private final ConnectionHelper connectionHelper;
+    private static final Logger logger = LoggerFactory.getLogger(DocumentViewService.class);
 
     public DocumentViewService(ConnectionHelper connectionHelper) {
-        this.connectionHelper = connectionHelper;
+        super(connectionHelper);
     }
 
-    public void viewDocument(Exchange exchange) {
-
-        BoxDeveloperEditionAPIConnection api = null;
-        try {
-            api = connectionHelper.getBoxDeveloperEditionAPIConnection();
-        } catch (Exception e) {
-            setupError("500", "Service error");
-        }
+    public void process(Exchange exchange) {
+        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
 
         DocumentViewRequest documentViewRequest = exchange.getIn().getBody(DocumentViewRequest.class);
         String documentId = documentViewRequest.getDocumentId();
@@ -50,7 +44,6 @@ public class DocumentViewService extends BaseService {
                 }
             }
         }
-
     }
 
 }

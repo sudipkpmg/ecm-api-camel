@@ -25,6 +25,10 @@ class EcmApiRoutes extends RouteBuilder {
 
     public final DocumentViewService viewDocumentService;
 
+    public final ApplyMetadataService applyMetadataService;
+
+    public final UpdateMetadataService updateMetadataService;
+
     @Value("${server.port}")
     String serverPort;
 
@@ -34,7 +38,9 @@ class EcmApiRoutes extends RouteBuilder {
             UploadFileService uploadFileService,
             SearchService searchService,
             DeleteDocumentService deleteDocumentService,
-            DocumentViewService viewDocumentService
+            DocumentViewService viewDocumentService,
+            ApplyMetadataService applyMetadataService,
+            UpdateMetadataService updateMetadataService
     ) {
         this.createFolderService = createFolderService;
         this.downloadFileService = downloadFileService;
@@ -42,6 +48,8 @@ class EcmApiRoutes extends RouteBuilder {
         this.searchService = searchService;
         this.deleteDocumentService = deleteDocumentService;
         this.viewDocumentService = viewDocumentService;
+        this.applyMetadataService = applyMetadataService;
+        this.updateMetadataService = updateMetadataService;
     }
 
     @Override
@@ -94,6 +102,10 @@ class EcmApiRoutes extends RouteBuilder {
 
         defineViewDocumentPath();
 
+        defineApplyMetadataPath();
+
+        defineUpdateMetadataPath();
+
     }
 
     private void defineStatusPath() {
@@ -116,7 +128,7 @@ class EcmApiRoutes extends RouteBuilder {
                 .to("direct:createFolderService")
         ;
         from("direct:createFolderService")
-                .bean(createFolderService, "createFolder")
+                .bean(createFolderService)
                 .endRest()
         ;
     }
@@ -129,7 +141,7 @@ class EcmApiRoutes extends RouteBuilder {
                 .to("direct:downloadFileService")
         ;
         from("direct:downloadFileService")
-                .bean(downloadFileService, "downloadFile")
+                .bean(downloadFileService)
                 .endRest()
                 ;
     }
@@ -138,13 +150,13 @@ class EcmApiRoutes extends RouteBuilder {
         rest()
                 .bindingMode(RestBindingMode.off)
                 .post("/upload_file")
-                .outType(UploadFileResponse.class)
+                .outType(String.class)
                 .to("direct:uploadFile")
         ;
         from("direct:uploadFile")
                 .unmarshal()
                 .mimeMultipart()
-                .bean(uploadFileService, "uploadFile")
+                .bean(uploadFileService)
                 .endRest()
         ;
     }
@@ -157,7 +169,7 @@ class EcmApiRoutes extends RouteBuilder {
                 .to("direct:searchService")
         ;
         from("direct:searchService")
-                .bean(searchService, "search")
+                .bean(searchService)
                 .endRest()
         ;
     }
@@ -170,7 +182,7 @@ class EcmApiRoutes extends RouteBuilder {
                 .to("direct:deleteDocumentService")
         ;
         from("direct:deleteDocumentService")
-                .bean(deleteDocumentService, "deleteDocument")
+                .bean(deleteDocumentService)
                 .endRest()
         ;
     }
@@ -183,7 +195,33 @@ class EcmApiRoutes extends RouteBuilder {
                 .to("direct:viewDocumentService")
         ;
         from("direct:viewDocumentService")
-                .bean(viewDocumentService, "viewDocument")
+                .bean(viewDocumentService)
+                .endRest()
+        ;
+    }
+
+    private void defineApplyMetadataPath() {
+        rest()
+                .post("/apply_metadata")
+                .type(MetadataAdditionRequest.class)
+                .outType(MetadataAdditionResponse.class)
+                .to("direct:applyMetadataService")
+        ;
+        from("direct:applyMetadataService")
+                .bean(applyMetadataService)
+                .endRest()
+        ;
+    }
+
+    private void defineUpdateMetadataPath() {
+        rest()
+                .post("/update_metadata")
+                .type(MetadataUpdationRequest.class)
+                .outType(MetadataUpdationResponse.class)
+                .to("direct:updateMetadataService")
+        ;
+        from("direct:updateMetadataService")
+                .bean(updateMetadataService)
                 .endRest()
         ;
     }

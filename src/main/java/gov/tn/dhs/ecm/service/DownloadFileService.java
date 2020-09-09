@@ -17,20 +17,18 @@ public class DownloadFileService extends BaseService {
 
     private static final Logger logger = LoggerFactory.getLogger(DownloadFileService.class);
 
-    private final ConnectionHelper connectionHelper;
-
     public DownloadFileService(ConnectionHelper connectionHelper) {
-        this.connectionHelper = connectionHelper;
+        super(connectionHelper);
     }
 
-    public void downloadFile(Exchange exchange) {
+    public void process(Exchange exchange) {
+
         FileDownloadRequest fileDownloadRequest = exchange.getIn().getBody(FileDownloadRequest.class);
         String fileId = fileDownloadRequest.getFileId();
-        BoxDeveloperEditionAPIConnection api = null;
+        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
         BoxFile file = null;
         BoxFile.Info info = null;
         try {
-            api = connectionHelper.getBoxDeveloperEditionAPIConnection();
             file = new BoxFile(api, fileId);
             info = file.getInfo();
         } catch (BoxAPIException e) {
@@ -47,6 +45,7 @@ public class DownloadFileService extends BaseService {
         } catch (Exception ex) {
             setupError("500", "Download error");
         }
+
     }
 
 }

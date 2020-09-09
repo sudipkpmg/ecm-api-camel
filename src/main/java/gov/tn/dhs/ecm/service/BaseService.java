@@ -1,11 +1,21 @@
 package gov.tn.dhs.ecm.service;
 
+import com.box.sdk.BoxDeveloperEditionAPIConnection;
 import gov.tn.dhs.ecm.exception.ServiceErrorException;
 import gov.tn.dhs.ecm.model.ClientError;
+import gov.tn.dhs.ecm.util.ConnectionHelper;
 import gov.tn.dhs.ecm.util.JsonUtil;
 import org.apache.camel.Exchange;
 
-public class BaseService {
+public abstract class BaseService {
+
+    private final ConnectionHelper connectionHelper;
+
+    public BaseService(ConnectionHelper connectionHelper) {
+        this.connectionHelper = connectionHelper;
+    }
+
+    protected abstract void process(Exchange exchange);
 
     protected void setupResponse(Exchange exchange, String code, Object response, Class clazz) {
         exchange.getIn().setBody(response, clazz);
@@ -24,6 +34,16 @@ public class BaseService {
     protected void setupError(String code, String message) {
         ClientError clientError = new ClientError(code, message);
         throw new ServiceErrorException(code, JsonUtil.toJson(clientError));
+    }
+
+    protected BoxDeveloperEditionAPIConnection getBoxApiConnection() {
+        BoxDeveloperEditionAPIConnection api = null;
+        try {
+            api = connectionHelper.getBoxDeveloperEditionAPIConnection();
+        } catch (Exception e) {
+            setupError("500", "Error getting Box connection");
+        }
+        return api;
     }
 
 }

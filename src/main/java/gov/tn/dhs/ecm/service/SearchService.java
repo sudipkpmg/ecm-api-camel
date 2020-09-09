@@ -21,20 +21,20 @@ public class SearchService extends BaseService {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchService.class);
 
-    private final ConnectionHelper connectionHelper;
-
     private final AppProperties appProperties;
 
     public SearchService(ConnectionHelper connectionHelper, AppProperties appProperties) {
-        this.connectionHelper = connectionHelper;
+        super(connectionHelper);
         this.appProperties = appProperties;
     }
 
-    public void search(Exchange exchange) {
+    public void process(Exchange exchange) {
+        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
+
         Query query = exchange.getIn().getBody(Query.class);
         long offset = query.getOffset();
         long limit = query.getLimit();
-        BoxDeveloperEditionAPIConnection api = connectionHelper.getBoxDeveloperEditionAPIConnection();
+
         switch (query.getSearchType().toLowerCase()) {
             case "folder": {
                 String folderId = query.getFolderId();
@@ -94,6 +94,7 @@ public class SearchService extends BaseService {
                 break;
             }
         }
+
     }
 
     private void prepareSearchResult(Exchange exchange, List<FileInfo> files, boolean complete) {

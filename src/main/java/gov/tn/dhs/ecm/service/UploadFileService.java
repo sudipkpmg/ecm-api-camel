@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
+import java.io.IOException;
 import java.io.InputStream;
 
 @Service
@@ -20,23 +21,25 @@ public class UploadFileService extends BaseService {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadFileService.class);
 
-    private final ConnectionHelper connectionHelper;
-
     public UploadFileService(ConnectionHelper connectionHelper) {
-        this.connectionHelper = connectionHelper;
+        super(connectionHelper);
     }
 
-    public void uploadFile(Exchange exchange) throws Exception {
+    public void process(Exchange exchange) {
         String boxFolderId = exchange.getIn().getBody(String.class);
         DataHandler[] attachments = exchange.getIn().getAttachments().values().toArray(new DataHandler[0]);
         DataHandler dh = attachments[0];
-        InputStream fileStream = dh.getInputStream();
-        String fileName = dh.getName();
-        uploadToBox(exchange, fileStream, fileName, boxFolderId);
+        try (InputStream fileStream = dh.getInputStream()) {
+            String fileName = dh.getName();
+            UploadFileResponse uploadFileResponse = uploadToBox(exchange, fileStream, fileName, boxFolderId);
+            setupResponse(exchange, "200", JsonUtil.toJson(uploadFileResponse), String.class);
+        } catch (IOException e) {
+            setupError("500", "File stream for uploaded file could not be read");
+        }
     }
 
-    private void uploadToBox(Exchange exchange, InputStream inputStream, String fileName, String boxFolderId) {
-        BoxDeveloperEditionAPIConnection api = connectionHelper.getBoxDeveloperEditionAPIConnection();
+    private UploadFileResponse uploadToBox(Exchange exchange, InputStream inputStream, String fileName, String boxFolderId) {
+        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
         BoxFolder parentFolder = null;
         try {
             parentFolder = new BoxFolder(api, boxFolderId);
@@ -45,18 +48,17 @@ public class UploadFileService extends BaseService {
         } catch (BoxAPIException e) {
             setupError("400", "Folder not found");
         }
-        String fileId = "No File Created";
         BoxFile.Info newFileInfo = null;
         try {
             newFileInfo = parentFolder.uploadFile(inputStream, fileName);
         } catch (BoxAPIException e) {
             setupError("409", "File with the same name already exists");
         }
-        fileId = newFileInfo.getID();
+        String fileId = newFileInfo.getID();
         UploadFileResponse uploadFileResponse = new UploadFileResponse();
         uploadFileResponse.setStatus("File upload completed");
         uploadFileResponse.setFileId(fileId);
-        setupResponse(exchange, "200", JsonUtil.toJson(uploadFileResponse), String.class);
+        return uploadFileResponse;
     }
 
 }

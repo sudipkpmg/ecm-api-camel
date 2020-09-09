@@ -6,7 +6,6 @@ import com.box.sdk.BoxFolder;
 import com.box.sdk.Metadata;
 import com.eclipsesource.json.JsonObject;
 import gov.tn.dhs.ecm.config.AppProperties;
-import gov.tn.dhs.ecm.exception.ServiceErrorException;
 import gov.tn.dhs.ecm.model.CitizenMetadata;
 import gov.tn.dhs.ecm.model.FolderCreationSuccessResponse;
 import gov.tn.dhs.ecm.util.ConnectionHelper;
@@ -22,21 +21,18 @@ public class CreateFolderService extends BaseService {
 
     private static final Logger logger = LoggerFactory.getLogger(CreateFolderService.class);
 
-    private final ConnectionHelper connectionHelper;
-
     private final AppProperties appProperties;
 
     public CreateFolderService(ConnectionHelper connectionHelper, AppProperties appProperties) {
-        this.connectionHelper = connectionHelper;
+        super(connectionHelper);
         this.appProperties = appProperties;
     }
 
-    public void createFolder(Exchange exchange) throws ServiceErrorException {
+    public void process(Exchange exchange) {
         try {
-            BoxDeveloperEditionAPIConnection api = connectionHelper.getBoxDeveloperEditionAPIConnection();
+            BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
 
             CitizenMetadata citizenMetadata = exchange.getIn().getBody(CitizenMetadata.class);
-            logger.info(citizenMetadata.toString());
             String firstName = citizenMetadata.getFirstName();
             String lastName = citizenMetadata.getLastName();
             String ssnOrTaxId = citizenMetadata.getSysId();
@@ -60,8 +56,6 @@ public class CreateFolderService extends BaseService {
             BoxFolder.Info childFolderInfo = parentFolder.createFolder(folderName);
             String folderID = childFolderInfo.getID();
 
-            FolderCreationSuccessResponse folderCreationSuccessResponse = new FolderCreationSuccessResponse();
-            folderCreationSuccessResponse.setId(folderID);
             BoxFolder boxFolder = new BoxFolder(api, folderID);
             JsonObject jsonObject = new JsonObject()
                     .add("FirstName", firstName)
@@ -87,7 +81,9 @@ public class CreateFolderService extends BaseService {
             createSubFolder(api, "upload", boxFolder, metadata);
             createSubFolder(api, "confidential", boxFolder, metadata);
 
-            setupResponse(exchange, "201", folderCreationSuccessResponse, FolderCreationSuccessResponse.class);
+            FolderCreationSuccessResponse folderCreationSuccessResponse = new FolderCreationSuccessResponse();
+            folderCreationSuccessResponse.setId(folderID);
+            setupResponse(exchange, "200", folderCreationSuccessResponse, FolderCreationSuccessResponse.class);
         } catch (BoxAPIException e) {
             String code = Integer.toString(e.getResponseCode());
             String message = "Internal server error";

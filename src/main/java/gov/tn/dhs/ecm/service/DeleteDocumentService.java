@@ -16,24 +16,14 @@ public class DeleteDocumentService extends BaseService {
 
     private static final Logger logger = LoggerFactory.getLogger(DeleteDocumentService.class);
 
-    private final ConnectionHelper connectionHelper;
-
     public DeleteDocumentService(ConnectionHelper connectionHelper) {
-        this.connectionHelper = connectionHelper;
+        super(connectionHelper);
     }
 
-    public void deleteDocument(Exchange exchange) {
-
-        BoxDeveloperEditionAPIConnection api = null;
-        try {
-            api = connectionHelper.getBoxDeveloperEditionAPIConnection();
-        } catch (Exception e) {
-            setupError("500", "Service error");
-        }
+    public void process(Exchange exchange) {
+        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
 
         DocumentDeletionRequest documentDeletionRequest = exchange.getIn().getBody(DocumentDeletionRequest.class);
-        logger.info(documentDeletionRequest.toString());
-
         String documentId = documentDeletionRequest.getDocumentId();
 
         try {
@@ -42,7 +32,7 @@ public class DeleteDocumentService extends BaseService {
         } catch (BoxAPIException e) {
             switch (e.getResponseCode()) {
                 case 404: {
-                    setupError("409", "Document not found");
+                    setupError("404", "Document not found");
                 }
                 default: {
                     setupError("500", "Document deletion error");
