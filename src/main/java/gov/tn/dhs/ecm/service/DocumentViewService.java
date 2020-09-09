@@ -27,6 +27,7 @@ public class DocumentViewService extends BaseService {
 
         DocumentViewRequest documentViewRequest = exchange.getIn().getBody(DocumentViewRequest.class);
         String documentId = documentViewRequest.getDocumentId();
+        logger.info("view document with id {}", documentId);
 
         try {
             BoxFile file = new BoxFile(api, documentId);
