@@ -113,7 +113,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Query'
+              $ref: '#/components/schemas/SearchRequest'
       responses:
         '200':
           description: File or Folder obtained
@@ -134,7 +134,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ClientError'
         '404':
-          description: Folder not found
+          description: File/Folder not found
           content:
             application/json:
               schema:
@@ -260,7 +260,6 @@ paths:
 components:
   schemas:
     FolderCreationSuccessResponse:
-      title: Response for successful folder creation
       type: object
       properties:
         id:
@@ -323,19 +322,16 @@ components:
         file:
           type: string
           format: binary
-    Query:
-      title: Search criterion
+    SearchRequest:
       type: object
+      required:
+        - folderId
       properties:
         fileName:
           type: string
         folderId:
           type: string
-        searchType:
-          type: string
-          enum:
-            - file
-            - folder
+          required: true
         offset:
           type: integer
           default: 0
@@ -477,13 +473,9 @@ components:
     DocumentDeletionRequest:
       type: object
       required:
-        - folderId
         - documentId
         - loggedOnUser
       properties:
-        folderId:
-          type: string
-          required: true
         documentId:
           type: string
           required: true

@@ -4,7 +4,7 @@ import com.box.sdk.*;
 import gov.tn.dhs.ecm.config.AppProperties;
 import gov.tn.dhs.ecm.model.CitizenMetadata;
 import gov.tn.dhs.ecm.model.FileInfo;
-import gov.tn.dhs.ecm.model.Query;
+import gov.tn.dhs.ecm.model.SearchRequest;
 import gov.tn.dhs.ecm.model.SearchResult;
 import gov.tn.dhs.ecm.util.ConnectionHelper;
 import org.apache.camel.Exchange;
@@ -31,13 +31,13 @@ public class SearchService extends BaseService {
     public void process(Exchange exchange) {
         BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
 
-        Query query = exchange.getIn().getBody(Query.class);
-        long offset = query.getOffset();
-        long limit = query.getLimit();
+        SearchRequest searchRequest = exchange.getIn().getBody(SearchRequest.class);
+        long offset = searchRequest.getOffset();
+        long limit = searchRequest.getLimit();
 
-        switch (query.getSearchType().toLowerCase()) {
+        switch (searchRequest.getSearchType().toLowerCase()) {
             case "folder": {
-                String folderId = query.getFolderId();
+                String folderId = searchRequest.getFolderId();
                 try {
                     BoxFolder folder = new BoxFolder(api, folderId);
                     Metadata folderMetadata = folder.getMetadata(appProperties.getCitizenFolderMetadataTemplateName(), appProperties.getCitizenFolderMetadataTemplateScope());
@@ -65,8 +65,8 @@ public class SearchService extends BaseService {
                 break;
             }
             case "file": {
-                String folderId = query.getFolderId();
-                String fileName = query.getFileName();
+                String folderId = searchRequest.getFolderId();
+                String fileName = searchRequest.getFileName();
                 BoxFolder folder = new BoxFolder(api, folderId);
                 Metadata folderMetadata = folder.getMetadata(appProperties.getCitizenFolderMetadataTemplateName(), appProperties.getCitizenFolderMetadataTemplateScope());
                 limit++;

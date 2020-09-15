@@ -2,7 +2,7 @@ package gov.tn.dhs.ecm.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Query   {
+public class SearchRequest {
 
   @JsonProperty("fileName")
   private String fileName;
@@ -19,7 +19,7 @@ public class Query   {
   @JsonProperty("limit")
   private int limit;
 
-  public Query() {
+  public SearchRequest() {
     offset = 0;
     limit = 20;
   }
