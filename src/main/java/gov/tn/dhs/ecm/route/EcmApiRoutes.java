@@ -8,9 +8,12 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 @Component
+@Configuration
 class EcmApiRoutes extends RouteBuilder {
 
     public final CreateFolderService createFolderService;
@@ -30,7 +33,10 @@ class EcmApiRoutes extends RouteBuilder {
     public final UpdateMetadataService updateMetadataService;
 
     @Value("${server.port}")
-    String serverPort;
+    private String serverPort;
+
+    @Value("${runstatus}")
+    private String runStatus;
 
     public EcmApiRoutes(
             CreateFolderService createFolderService,
@@ -78,11 +84,11 @@ class EcmApiRoutes extends RouteBuilder {
 
         restConfiguration()
                 .enableCORS(true)
-                .apiContextPath("/api-doc")
-                .apiProperty("api.title", "ECM API")
-                .apiProperty("api.version", "v1")
+//                .apiContextPath("/api-doc")
+//                .apiProperty("api.title", "ECM API")
+//                .apiProperty("api.version", "v1")
                 .apiProperty("cors", "true") // cross-site
-                .apiContextRouteId("doc-api")
+//                .apiContextRouteId("doc-api")
                 .component("servlet")
                 .port(serverPort)
                 .bindingMode(RestBindingMode.json)
@@ -109,13 +115,19 @@ class EcmApiRoutes extends RouteBuilder {
     }
 
     private void defineStatusPath() {
+        SimpleMessage simpleMessage = new SimpleMessage(runStatus);
         rest()
                 .get("/")
                 .to("direct:runningStatus")
         ;
         from("direct:runningStatus")
-                .transform().simple("TNDHS ECM API is running")
+                .log("Status request sent")
+                .log("runstatus property value is " + runStatus)
+                .process(exchange -> {
+                    exchange.getIn().setBody(simpleMessage, SimpleMessage.class);
+                })
                 .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
+                .setHeader("Content-Type", constant("application/json"))
                 .endRest()
         ;
     }
@@ -164,7 +176,7 @@ class EcmApiRoutes extends RouteBuilder {
     private void defineSearchPath() {
         rest()
                 .post("/search")
-                .type(Query.class)
+                .type(SearchRequest.class)
                 .outType(SearchResult.class)
                 .to("direct:searchService")
         ;
