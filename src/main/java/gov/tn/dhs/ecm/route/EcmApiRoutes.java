@@ -84,11 +84,7 @@ class EcmApiRoutes extends RouteBuilder {
 
         restConfiguration()
                 .enableCORS(true)
-//                .apiContextPath("/api-doc")
-//                .apiProperty("api.title", "ECM API")
-//                .apiProperty("api.version", "v1")
                 .apiProperty("cors", "true") // cross-site
-//                .apiContextRouteId("doc-api")
                 .component("servlet")
                 .port(serverPort)
                 .bindingMode(RestBindingMode.json)
