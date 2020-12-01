@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MetadataAdditionRequest {
 
+    @JsonProperty("appUserIdId")
+    private String appUserId;
+
     @JsonProperty("documentId")
     private String documentId;
 
@@ -21,6 +24,14 @@ public class MetadataAdditionRequest {
 
     @JsonProperty("caseChildCareMetadata")
     private DocumentChildCareCaseMetadata documentChildCareCaseMetadata;
+
+    public String getAppUserId() {
+        return appUserId;
+    }
+
+    public void setAppUserId(String appUserId) {
+        this.appUserId = appUserId;
+    }
 
     public String getDocumentId() {
         return documentId;

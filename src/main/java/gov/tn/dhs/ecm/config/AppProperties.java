@@ -19,18 +19,18 @@ public class AppProperties {
     private String downloadTwoUserID;
     private String downloadThreeUserID;
 
-    private String developerToken;
+    private String ConfidentialFolder;
+    private String NotificationsFolder;
+    private String ApplicationFolder;
+    private String UploadFolder;
+    private String VerifiedDocumentFolder;
 
-    private String citizenFolderMetadataTemplateName;
-    private String citizenFolderMetadataTemplateScope;
+    private int maxCitizensFoldersPerSubfolder;
+    private int citizensFolderIterationLookback;
 
-    public String getDeveloperToken() {
-        return developerToken;
-    }
-
-    public void setDeveloperToken(String developerToken) {
-        this.developerToken = developerToken;
-    }
+    private String citizenMetadataTemplate;
+    private String faSnapMetadataTemplate;
+    private String childCareMetadataTemplate;
 
     public String getClientID() {
         return clientID;
@@ -112,20 +112,83 @@ public class AppProperties {
         this.downloadThreeUserID = downloadThreeUserID;
     }
 
-    public String getCitizenFolderMetadataTemplateName() {
-        return citizenFolderMetadataTemplateName;
+    public String getConfidentialFolder() {
+        return ConfidentialFolder;
     }
 
-    public void setCitizenFolderMetadataTemplateName(String citizenFolderMetadataTemplateName) {
-        this.citizenFolderMetadataTemplateName = citizenFolderMetadataTemplateName;
+    public void setConfidentialFolder(String confidentialFolder) {
+        ConfidentialFolder = confidentialFolder;
     }
 
-    public String getCitizenFolderMetadataTemplateScope() {
-        return citizenFolderMetadataTemplateScope;
+    public String getNotificationsFolder() {
+        return NotificationsFolder;
     }
 
-    public void setCitizenFolderMetadataTemplateScope(String citizenFolderMetadataTemplateScope) {
-        this.citizenFolderMetadataTemplateScope = citizenFolderMetadataTemplateScope;
+    public void setNotificationsFolder(String notificationsFolder) {
+        NotificationsFolder = notificationsFolder;
     }
 
+    public String getApplicationFolder() {
+        return ApplicationFolder;
+    }
+
+    public void setApplicationFolder(String applicationFolder) {
+        ApplicationFolder = applicationFolder;
+    }
+
+    public String getUploadFolder() {
+        return UploadFolder;
+    }
+
+    public void setUploadFolder(String uploadFolder) {
+        UploadFolder = uploadFolder;
+    }
+
+    public String getVerifiedDocumentFolder() {
+        return VerifiedDocumentFolder;
+    }
+
+    public void setVerifiedDocumentFolder(String verifiedDocumentFolder) {
+        VerifiedDocumentFolder = verifiedDocumentFolder;
+    }
+
+    public int getMaxCitizensFoldersPerSubfolder() {
+        return this.maxCitizensFoldersPerSubfolder;
+    }
+
+    public void setMaxCitizensFoldersPerSubfolder(int maxCitizensFoldersPerSubfolder) {
+        this.maxCitizensFoldersPerSubfolder = maxCitizensFoldersPerSubfolder;
+    }
+
+    public int getCitizensFolderIterationLookback() {
+        return this.citizensFolderIterationLookback;
+    }
+
+    public void setCitizensFolderIterationLookback(int citizensFolderIterationLookback) {
+        this.citizensFolderIterationLookback = citizensFolderIterationLookback;
+    }
+
+    public String getCitizenMetadataTemplate() {
+        return citizenMetadataTemplate;
+    }
+
+    public void setCitizenMetadataTemplate(String citizenMetadataTemplate) {
+        this.citizenMetadataTemplate = citizenMetadataTemplate;
+    }
+
+    public String getFaSnapMetadataTemplate() {
+        return faSnapMetadataTemplate;
+    }
+
+    public void setFaSnapMetadataTemplate(String faSnapMetadataTemplate) {
+        this.faSnapMetadataTemplate = faSnapMetadataTemplate;
+    }
+
+    public String getChildCareMetadataTemplate() {
+        return childCareMetadataTemplate;
+    }
+
+    public void setChildCareMetadataTemplate(String childCareMetadataTemplate) {
+        this.childCareMetadataTemplate = childCareMetadataTemplate;
+    }
 }

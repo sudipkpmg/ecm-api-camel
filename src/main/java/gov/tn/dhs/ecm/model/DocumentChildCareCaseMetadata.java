@@ -23,6 +23,15 @@ public class DocumentChildCareCaseMetadata {
     @JsonProperty("county")
     private String county;
 
+    @JsonProperty("verified")
+    private String verified;
+
+    @JsonProperty("verified_by")
+    private String verifiedBy;
+
+    @JsonProperty("verified_date")
+    private String verifiedDate;
+
     public String getApplicationNumber() {
         return applicationNumber;
     }
@@ -63,4 +72,28 @@ public class DocumentChildCareCaseMetadata {
         this.county = county;
     }
 
+    public String getVerified() {
+        return verified;
+    }
+
+    public void setVerified(String verified) {
+        this.verified = verified;
+    }
+
+    public String getVerifiedBy() {
+        return verifiedBy;
+    }
+
+    public void setVerifiedBy(String verifiedBy) {
+        this.verifiedBy = verifiedBy;
+    }
+
+    public String getVerifiedDate() {
+        return verifiedDate;
+    }
+
+    public void setVerifiedDate(String verifiedDate) {
+        this.verifiedDate = verifiedDate;
+    }
+    
 }

@@ -136,6 +136,7 @@ class EcmApiRoutes extends RouteBuilder {
                 .to("direct:createFolderService")
         ;
         from("direct:createFolderService")
+                .routeId("route_create_folder")
                 .bean(createFolderService)
                 .endRest()
         ;
@@ -149,6 +150,7 @@ class EcmApiRoutes extends RouteBuilder {
                 .to("direct:downloadFileService")
         ;
         from("direct:downloadFileService")
+                .routeId("route_download_file")
                 .bean(downloadFileService)
                 .endRest()
                 ;
@@ -159,9 +161,9 @@ class EcmApiRoutes extends RouteBuilder {
                 .bindingMode(RestBindingMode.off)
                 .post("/upload_file")
                 .outType(String.class)
-                .to("direct:uploadFile")
+                .to("direct:uploadFileService")
         ;
-        from("direct:uploadFile")
+        from("direct:uploadFileService")
                 .unmarshal()
                 .mimeMultipart()
                 .bean(uploadFileService)

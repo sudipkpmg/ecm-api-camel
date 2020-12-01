@@ -25,7 +25,9 @@ public class DownloadFileService extends BaseService {
 
         FileDownloadRequest fileDownloadRequest = exchange.getIn().getBody(FileDownloadRequest.class);
         String fileId = fileDownloadRequest.getFileId();
+        String appUserId = fileDownloadRequest.getAppUserId();
         BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
+//        api.asUser(appUserId);
         BoxFile file = null;
         BoxFile.Info info = null;
         try {

@@ -23,19 +23,26 @@ public class DocumentViewService extends BaseService {
     }
 
     public void process(Exchange exchange) {
-        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
-
         DocumentViewRequest documentViewRequest = exchange.getIn().getBody(DocumentViewRequest.class);
         String documentId = documentViewRequest.getDocumentId();
-        logger.info("view document with id {}", documentId);
+        String appUserId = documentViewRequest.getAppUserId();
+
+        logger.info("Document View request received");
+        logger.info("documentId = {}", documentId);
+        logger.info("appUserId = {}", appUserId);
+
+        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
+//        api.asUser(appUserId);
 
         try {
             BoxFile file = new BoxFile(api, documentId);
             URL previewUrl = file.getPreviewLink();
+            logger.info("previewUrl = {}", previewUrl);
             DocumentViewResult documentViewResult = new DocumentViewResult();
             documentViewResult.setPreviewUrl(previewUrl.toString());
             setupResponse(exchange, "200", documentViewResult, DocumentViewResult.class);
         } catch (BoxAPIException e) {
+            logger.error(e.getMessage());
             switch (e.getResponseCode()) {
                 case 404: {
                     setupError("409", "Document not found");

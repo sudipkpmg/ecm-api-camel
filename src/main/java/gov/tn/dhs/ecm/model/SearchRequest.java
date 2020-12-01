@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SearchRequest {
 
+  @JsonProperty("appUserId")
+  private String appUserId;
+
   @JsonProperty("fileName")
   private String fileName;
 
@@ -22,6 +25,14 @@ public class SearchRequest {
   public SearchRequest() {
     offset = 0;
     limit = 20;
+  }
+
+  public String getAppUserId() {
+    return appUserId;
+  }
+
+  public void setAppUserId(String appUserId) {
+    this.appUserId = appUserId;
   }
 
   public String getFileName() {

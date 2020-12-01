@@ -6,26 +6,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FolderCreationSuccessResponse {
 
-    @JsonProperty("id")
-    private String id;
+    @JsonProperty("appUserId")
+    private String appUserId;
 
-    @JsonProperty("metadata_status")
-    private String metadata_status;
+    @JsonProperty("folderId")
+    private String folderId;
 
-    public String getId() {
-        return id;
+    public String getAppUserId() {
+        return appUserId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setAppUserId(String appUserId) {
+        this.appUserId = appUserId;
     }
 
-    public String getMetadata_status() {
-        return metadata_status;
+    public String getFolderId() {
+        return folderId;
     }
 
-    public void setMetadata_status(String metadata_status) {
-        this.metadata_status = metadata_status;
+    public void setFolderId(String folderId) {
+        this.folderId = folderId;
     }
 
 }

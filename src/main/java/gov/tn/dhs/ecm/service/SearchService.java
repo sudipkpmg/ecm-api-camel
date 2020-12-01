@@ -23,24 +23,29 @@ public class SearchService extends BaseService {
 
     private final AppProperties appProperties;
 
+    private static final String CITIZEN_METADATA_TEMPLATE = "CitizenFolderMetadataTemplate";
+    private static final String CITIZEN_METADATA_SCOPE = "enterprise";
+
     public SearchService(ConnectionHelper connectionHelper, AppProperties appProperties) {
         super(connectionHelper);
         this.appProperties = appProperties;
     }
 
     public void process(Exchange exchange) {
-        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
-
         SearchRequest searchRequest = exchange.getIn().getBody(SearchRequest.class);
+        String appUserId = searchRequest.getAppUserId();
         long offset = searchRequest.getOffset();
         long limit = searchRequest.getLimit();
+
+        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
+//        api.asUser(appUserId);
 
         switch (searchRequest.getSearchType().toLowerCase()) {
             case "folder": {
                 String folderId = searchRequest.getFolderId();
                 try {
                     BoxFolder folder = new BoxFolder(api, folderId);
-                    Metadata folderMetadata = folder.getMetadata(appProperties.getCitizenFolderMetadataTemplateName(), appProperties.getCitizenFolderMetadataTemplateScope());
+                    Metadata folderMetadata = folder.getMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE);
                     logger.info(folderMetadata.toString());
                     List<FileInfo> files = new ArrayList<>();
                     PartialCollection<BoxItem.Info> items = folder.getChildrenRange(offset, limit);
@@ -68,7 +73,7 @@ public class SearchService extends BaseService {
                 String folderId = searchRequest.getFolderId();
                 String fileName = searchRequest.getFileName();
                 BoxFolder folder = new BoxFolder(api, folderId);
-                Metadata folderMetadata = folder.getMetadata(appProperties.getCitizenFolderMetadataTemplateName(), appProperties.getCitizenFolderMetadataTemplateScope());
+                Metadata folderMetadata = folder.getMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE);
                 limit++;
                 long position = offset;
                 long count = 0;

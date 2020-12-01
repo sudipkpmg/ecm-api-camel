@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: ECM API for users
 servers:
-  - url: http://localhost:8080/ecm-api/v1/
+  - url: 'http://localhost:8080/ecm-api/v1/'
 paths:
   /create_folder:
     post:
@@ -16,38 +16,31 @@ paths:
         required: true
       responses:
         '200':
-          description: Successfully created new folder
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FolderCreationSuccessResponse'
+          description: Successfully created new folder
         '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
           description: Some of the parameters are missing or not valid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceError'
-        '403':
-          description: User does not have the required access to perform the action.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceError'
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
           description: 'The parent folder could not be found, or the authenticated user does not have access to the parent folder.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceError'
         '409':
-          description: The folder is locked or the folder already exists.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: The folder is locked or the folder already exists.
   /download_file:
     post:
-      description: Get file
       requestBody:
         content:
           application/json:
@@ -56,32 +49,79 @@ paths:
         required: true
       responses:
         '200':
-          description: A binary file
           content:
             application/octet-stream:
               schema:
-                type: string
                 format: binary
-        '202':
-          description: File is not ready to be downloaded.
-          content:
-            application/json:
-              schema:
                 type: string
+          description: A binary file
+        '202':
           headers:
             Retry-After:
               schema:
                 type: integer
               description: Time in seconds after which the file will be available for the client to download.
-        '404':
-          description: File not found
           content:
             application/json:
               schema:
                 type: string
+          description: File is not ready to be downloaded.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: File not found
+      description: Get file
+  /download_file_chunk:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileChunkDownloadRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                format: binary
+                type: string
+          description: Chunk of a binary file
+        '202':
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Time in seconds after which the file will be available for the client to download.
+          content:
+            application/json:
+              schema:
+                type: string
+          description: File is not ready to be downloaded.
+        '404':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: File not found
+      description: Get file
   /upload_file:
     post:
       requestBody:
+        description: "This order of parameters is required.
+
+      1. First parameter is a string that encodes this JSON object:
+      
+      
+        {  \"boxFolderId\": \"string\", 
+          \"appUserId\": \"string\"  }
+   
+   2. Second parameter is a file attachment
+        
+        
+        See #/components/schemas/FileUploadData for details of request fields."
         content:
           multipart/form-data:
             schema:
@@ -89,26 +129,25 @@ paths:
         required: true
       responses:
         '200':
-          description: Document ID of uploaded content is returned
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UploadFileResponse'
+          description: Document ID of uploaded content is returned
         '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
           description: Folder error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceError'
         '409':
-          description: File exists error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: File exists error
   /search:
     post:
-      description: Get file
       requestBody:
         content:
           application/json:
@@ -116,38 +155,32 @@ paths:
               $ref: '#/components/schemas/SearchRequest'
       responses:
         '200':
-          description: File or Folder obtained
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SearchResult'
+          description: File or Folder obtained
         '400':
-          description: Some of the parameters are missing or not valid.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
-        '403':
-          description: User does not have the required access to perform the action.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceError'
+          description: App User or File/Folder not found
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
           description: File/Folder not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceError'
         '500':
-          description: Service error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: Service error
+      description: Get file
   /apply_metadata:
     post:
-      description: apply metadata to document
       requestBody:
         content:
           application/json:
@@ -155,26 +188,32 @@ paths:
               $ref: '#/components/schemas/MetadataAdditionRequest'
       responses:
         '200':
-          description: metadata successfully applied
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MetadataAdditionResponse'
-        '409':
-          description: File not existing error
+          description: metadata successfully applied
+        '400':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: DocumentID information missing
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+          description: File not found
         '500':
-          description: metadata not applied due to error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: metadata not applied due to error
+      description: apply metadata to document
   /update_metadata:
     post:
-      description: update metadata of document
       requestBody:
         content:
           application/json:
@@ -182,23 +221,46 @@ paths:
               $ref: '#/components/schemas/MetadataUpdationRequest'
       responses:
         '200':
-          description: metadata successfully updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MetadataUpdationResponse'
-        '409':
-          description: File not existing error
+          description: metadata successfully updated
+        '207':
+          content:
+            application/json:
+              example:
+                - {"SUCCESS: ":"ProgramID successfully appended to Child Care Template"}
+                - {"PRE-CONDITION_FAILED: ":"Application Number has no existing value in Child Care Template"}
+                - {"PRE-CONDITION_FAILED: ":"Case Number has no existing value in FA/SNAP Template"}
+                - {"SUCCESS: ":"Application Number successfully appended to FA/SNAP Template"}
+          description: Multi Status
+        '400':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: DocumentID information missing or not valid
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+          description: File not found
+        '412':
+          content:
+            application/json:
+              example:
+                - {"PRE-CONDITION_FAILED: ":"Child Care Metadata Template not applied to the document"}
+                - {"PRE-CONDITION_FAILED: ":"FA/SNAP Metadata Template not applied to the document"}
+          description: Precondition Failed
         '500':
-          description: metadata not applied due to error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: metadata not applied due to error
+      description: update metadata of document
   /delete_document:
     post:
       requestBody:
@@ -208,23 +270,29 @@ paths:
               $ref: '#/components/schemas/DocumentDeletionRequest'
       responses:
         '200':
-          description: delete document
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DocumentDeletionResult'
-        '409':
-          description: File not existing error
+          description: File deleted successfully.
+        '400':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: App User or File/Folder not found
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+          description: File/Folder not found.
         '500':
-          description: document deletion error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: You cannot delete this file as it is already attached to a Case or is Verified.
   /view_document:
     post:
       requestBody:
@@ -234,56 +302,64 @@ paths:
               $ref: '#/components/schemas/DocumentViewRequest'
       responses:
         '200':
-          description: view metadata
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DocumentViewResponse'
+          description: view metadata
         '400':
-          description: Folder error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
-        '409':
-          description: File not existing error
+          description: Some of the parameters are missing or not valid
+        '404':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: File not found
         '500':
-          description: document view error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceError'
+          description: document view error
 components:
   schemas:
     FolderCreationSuccessResponse:
       type: object
       properties:
-        id:
+        appUserId:
+          description: The unique identifier for the user the folder is associated with.
           type: string
+        folderId:
           description: The unique identifier that represents the folder.
+          type: string
     UploadFileResponse:
       type: object
       properties:
         Status:
-          type: string
           description: Status message for operation
-        FileId:
           type: string
+        FileId:
           description: File ID of uploaded content
+          type: string
     ServiceError:
       type: object
       properties:
         code:
-          type: string
           description: Error code
-        message:
           type: string
+        message:
           description: Error description
+          type: string
     CitizenMetadata:
+      required:
+        - logon_user_id
+        - firstName
+        - lastName
+      description: "One of mpi_id or sys_id is required. mpi_id will be sent only when the account is a verified account. sys_id will be sent only when the account is an unverified account."
       type: object
       properties:
         logon_user_id:
@@ -293,54 +369,98 @@ components:
         sys_id:
           type: string
         firstName:
-          type: string
           description: First name
+          type: string
         lastName:
-          type: string
           description: Last name
+          type: string
         dob:
-          type: string
-          description: Date of birth
           format: date
-        ssn4:
+          description: Date of birth
           type: string
+        ssn4:
           description: Last 4 digits of SSN
-          pattern: "\\d{4}"
+          pattern: '\d{4}'
+          type: string
     FileDownloadRequest:
+      required:
+        - appUserId
+        - fileId
       type: object
       properties:
+        appUserId:
+          type: string
         fileId:
           type: string
-    FileUploadData:
-      type: object
-      properties:
-        boxFolderId:
-          type: string
-        file:
-          type: string
-          format: binary
-    SearchRequest:
-      type: object
+    FileChunkDownloadRequest:
       required:
-        - folderId
+        - appUserId
+        - fileId
+        - rangeStart
+        - rangeEnd
+      type: object
       properties:
+        appUserId:
+          type: string
+        fileId:
+          type: string
+        rangeStart:
+          type: long
+        rangeEnd:
+          type: long
+    FileUploadData:
+      description: "This order of parameters is required.
+
+      1. First parameter is a string that encodes this JSON object:
+      
+      
+        {  \"boxFolderId\": \"string\", 
+          \"appUserId\": \"string\"  }
+   
+   2. Second parameter is a file attachment
+"
+      required:
+        - parameters
+        - file
+      type: object
+      properties:
+        parameters:
+          required:
+            - appUserId
+            - boxFolderId
+          type: object
+          properties:
+            appUserId:
+              type: string
+            boxFolderId:
+              type: string
+        file:
+          format: binary
+          type: string
+    SearchRequest:
+      required:
+        - appUserId
+        - folderId
+      type: object
+      properties:
+        appUserId:
+          type: string
         fileName:
           type: string
         folderId:
           type: string
-          required: true
         offset:
-          type: integer
           default: 0
-        limit:
           type: integer
+        limit:
           default: 20
+          type: integer
     FileDownloadData:
       type: object
       properties:
         file:
-          type: string
           format: binary
+          type: string
     FileInfo:
       type: object
       properties:
@@ -349,10 +469,10 @@ components:
         fileName:
           type: string
         itemType:
-          type: string
           enum:
             - file
             - folder
+          type: string
         citizenMetadata:
           $ref: '#/components/schemas/CitizenMetadata'
         confidentialityMetadata:
@@ -369,10 +489,10 @@ components:
       type: object
       properties:
         complete:
-          type: string
           enum:
             - true
             - false
+          type: string
         fileData:
           type: array
           items:
@@ -380,11 +500,15 @@ components:
     DocumentFaSnapCaseMetadata:
       type: object
       properties:
+        program_id:
+          type: string
         case_number:
           type: string
         application_number:
           type: string
         recipient_id:
+          type: string
+        document_type:
           type: string
         signed_date:
           type: string
@@ -392,13 +516,23 @@ components:
         county:
           type: string
         verified:
-          type: boolean
+          enum:
+            - 'true'
+            - 'false'
+          type: string
         verified_by:
           type: string
+        verified_date:
+          type: string
+          format: date
     DocumentChildCareCaseMetadata:
       type: object
       properties:
+        program_id:
+          type: string
         application_number:
+          type: string
+        document_type:
           type: string
         document_name:
           type: string
@@ -410,20 +544,31 @@ components:
         county:
           type: string
         verified:
-          type: boolean
+          enum:
+            - 'true'
+            - 'false'
+          type: string
         verified_by:
           type: string
+        verified_date:
+          type: string
+          format: date
     DocumentConfidentialityMetadata:
       type: object
       properties:
         confidential:
-          type: string
           enum:
-            - yes
-            - no
+            - 'true'
+            - 'false'
+          type: string
     MetadataAdditionRequest:
+      required:
+        - appUserId
+        - documentId
       type: object
       properties:
+        appUserId:
+          type: string
         documentId:
           type: string
         documentConfidentialityMetadata:
@@ -435,11 +580,18 @@ components:
     MetadataAdditionResponse:
       type: object
       properties:
+        code:
+          type: string
         message:
           type: string
     MetadataUpdationRequest:
+      required:
+        - appUserId
+        - documentId
       type: object
       properties:
+        appUserId:
+          type: string
         documentId:
           type: string
         caseFaSnapMetadata:
@@ -449,43 +601,42 @@ components:
     MetadataUpdationResponse:
       type: object
       properties:
+        code:
+          type: string
         message:
           type: string
     DocumentDeletionRequest:
-      type: object
       required:
+        - appUserId
         - documentId
-        - loggedOnUser
+      type: object
       properties:
+        appUserId:
+          type: string
         documentId:
           type: string
-          required: true
         verified:
-          type: boolean
           default: false
-        loggedOnUser:
-          type: string
-          required: true
+          type: boolean
     DocumentDeletionResult:
       type: object
       properties:
+        code:
+          type: string
         message:
           type: string
     DocumentViewRequest:
-      type: object
       required:
-        - documentId
-        - loggedOnUser
+        - appUserId
+        - fileId
+      type: object
       properties:
-        documentId:
+        appUserId:
           type: string
-          required: true
-        loggedOnUser:
+        fileId:
           type: string
-          required: true
     DocumentViewResponse:
       type: object
       properties:
         previewUrl:
           type: string
-

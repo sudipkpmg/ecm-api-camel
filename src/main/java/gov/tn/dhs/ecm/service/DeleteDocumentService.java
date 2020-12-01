@@ -21,10 +21,12 @@ public class DeleteDocumentService extends BaseService {
     }
 
     public void process(Exchange exchange) {
-        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
-
         DocumentDeletionRequest documentDeletionRequest = exchange.getIn().getBody(DocumentDeletionRequest.class);
         String documentId = documentDeletionRequest.getDocumentId();
+        String appUserId = documentDeletionRequest.getAppUserId();
+
+        BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
+//        api.asUser(appUserId);
 
         try {
             BoxFile file = new BoxFile(api, documentId);

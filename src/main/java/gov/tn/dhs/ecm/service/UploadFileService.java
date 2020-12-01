@@ -4,6 +4,9 @@ import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxDeveloperEditionAPIConnection;
 import com.box.sdk.BoxFile;
 import com.box.sdk.BoxFolder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.tn.dhs.ecm.model.UploadFileResponse;
 import gov.tn.dhs.ecm.util.ConnectionHelper;
 import gov.tn.dhs.ecm.util.JsonUtil;
@@ -26,20 +29,33 @@ public class UploadFileService extends BaseService {
     }
 
     public void process(Exchange exchange) {
-        String boxFolderId = exchange.getIn().getBody(String.class);
+        String parameters = exchange.getIn().getBody(String.class);
+        ObjectMapper mapper = new ObjectMapper();
+        String appUserId = null;
+        String boxFolderId = null;
+        try {
+            JsonNode actualObj = mapper.readTree(parameters);
+            appUserId = actualObj.get("appUserId").asText();
+            boxFolderId = actualObj.get("boxFolderId").asText();
+        } catch (JsonProcessingException e) {
+            setupError("400", "Invalid parameters");
+        } catch (IOException e) {
+            setupError("400", "Invalid parameters");
+        }
         DataHandler[] attachments = exchange.getIn().getAttachments().values().toArray(new DataHandler[0]);
         DataHandler dh = attachments[0];
         try (InputStream fileStream = dh.getInputStream()) {
             String fileName = dh.getName();
-            UploadFileResponse uploadFileResponse = uploadToBox(exchange, fileStream, fileName, boxFolderId);
+            UploadFileResponse uploadFileResponse = uploadToBox(exchange, fileStream, fileName, boxFolderId, appUserId);
             setupResponse(exchange, "200", JsonUtil.toJson(uploadFileResponse), String.class);
         } catch (IOException e) {
             setupError("500", "File stream for uploaded file could not be read");
         }
     }
 
-    private UploadFileResponse uploadToBox(Exchange exchange, InputStream inputStream, String fileName, String boxFolderId) {
+    private UploadFileResponse uploadToBox(Exchange exchange, InputStream inputStream, String fileName, String boxFolderId, String appUserId) {
         BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
+//        api.asUser(appUserId);
         BoxFolder parentFolder = null;
         try {
             parentFolder = new BoxFolder(api, boxFolderId);
