@@ -2,7 +2,10 @@
 <!DOCTYPE xml>
 
 <configuration>
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+<!--         
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <pattern>
@@ -31,7 +34,8 @@
                 </stackTrace>
             </providers>
         </encoder>
-<!--        <encoder class="net.logstash.logback.encoder.LogstashEncoder">-->
+ -->
+ <!--        <encoder class="net.logstash.logback.encoder.LogstashEncoder">-->
 <!--        </encoder>-->
 <!--        <layout class="ch.qos.logback.classic.PatternLayout">-->
 <!--            <Pattern>-->
