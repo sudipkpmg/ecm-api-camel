@@ -45,7 +45,7 @@ public class SearchService extends BaseService {
                 String folderId = searchRequest.getFolderId();
                 try {
                     BoxFolder folder = new BoxFolder(api, folderId);
-                    Metadata folderMetadata = folder.getMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE);
+                    Metadata folderMetadata = folder.getMetadata(appProperties.getCitizenMetadataTemplate(), CITIZEN_METADATA_SCOPE);
                     logger.info(folderMetadata.toString());
                     List<FileInfo> files = new ArrayList<>();
                     PartialCollection<BoxItem.Info> items = folder.getChildrenRange(offset, limit);
@@ -73,7 +73,7 @@ public class SearchService extends BaseService {
                 String folderId = searchRequest.getFolderId();
                 String fileName = searchRequest.getFileName();
                 BoxFolder folder = new BoxFolder(api, folderId);
-                Metadata folderMetadata = folder.getMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE);
+                Metadata folderMetadata = folder.getMetadata(appProperties.getCitizenMetadataTemplate(), CITIZEN_METADATA_SCOPE);
                 limit++;
                 long position = offset;
                 long count = 0;
@@ -126,11 +126,11 @@ public class SearchService extends BaseService {
         CitizenMetadata citizenMetadata = new CitizenMetadata();
         citizenMetadata.setFirstName(getMetadataStringField(folderMetadata, "/FirstName"));
         citizenMetadata.setLastName(getMetadataStringField(folderMetadata, "/LastName"));
-        citizenMetadata.setSsn4(getMetadataStringField(folderMetadata, "/last4ofssn"));
-        citizenMetadata.setLogonUserId(getMetadataStringField(folderMetadata, "/logonuserid"));
-        citizenMetadata.setMpiId(getMetadataStringField(folderMetadata, "/mpiid"));
-        citizenMetadata.setSysId(getMetadataStringField(folderMetadata, "/sysid"));
-        citizenMetadata.setDob(getMetadataDateField(folderMetadata,"/dob1"));
+        citizenMetadata.setSsn4(getMetadataStringField(folderMetadata, "/Last4ofSSN"));
+        citizenMetadata.setLogonUserId(getMetadataStringField(folderMetadata, "/logon_user_id"));
+        citizenMetadata.setMpiId(getMetadataStringField(folderMetadata, "/mpi_id"));
+        citizenMetadata.setSysId(getMetadataStringField(folderMetadata, "/sys_id"));
+        citizenMetadata.setDob(getMetadataDateField(folderMetadata,"/dob"));
         return citizenMetadata;
     }
 
