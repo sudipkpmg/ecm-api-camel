@@ -191,4 +191,5 @@ public class AppProperties {
     public void setChildCareMetadataTemplate(String childCareMetadataTemplate) {
         this.childCareMetadataTemplate = childCareMetadataTemplate;
     }
+
 }
