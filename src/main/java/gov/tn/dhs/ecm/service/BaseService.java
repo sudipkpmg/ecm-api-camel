@@ -18,6 +18,13 @@ public abstract class BaseService {
 
     protected abstract void process(Exchange exchange);
 
+    protected void setupResponse(Exchange exchange, String code, Object response) {
+        exchange.getIn().setBody(response, response.getClass());
+        exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, code);
+        exchange.getIn().setHeader("Content-Type", "application/json");
+        exchange.getIn().setHeader("Accept", "application/json");
+    }
+
     protected void setupResponse(Exchange exchange, String code, Object response, Class clazz) {
         exchange.getIn().setBody(response, clazz);
         exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, code);

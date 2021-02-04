@@ -32,7 +32,7 @@ public class DocumentViewService extends BaseService {
         logger.info("appUserId = {}", appUserId);
 
         BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
-//        api.asUser(appUserId);
+        api.asUser(appUserId);
 
         try {
             BoxFile file = new BoxFile(api, documentId);
@@ -40,7 +40,7 @@ public class DocumentViewService extends BaseService {
             logger.info("previewUrl = {}", previewUrl);
             DocumentViewResult documentViewResult = new DocumentViewResult();
             documentViewResult.setPreviewUrl(previewUrl.toString());
-            setupResponse(exchange, "200", documentViewResult, DocumentViewResult.class);
+            setupResponse(exchange, "200", documentViewResult);
         } catch (BoxAPIException e) {
             logger.error(e.getMessage());
             switch (e.getResponseCode()) {

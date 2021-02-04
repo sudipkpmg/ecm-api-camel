@@ -13,24 +13,19 @@ public class AppProperties {
     private String privateKey;
     private String passphrase;
     private String enterpriseID;
-    private String parentFolderID;
-
-    private String downloadOneUserID;
-    private String downloadTwoUserID;
-    private String downloadThreeUserID;
-
-    private String ConfidentialFolder;
-    private String NotificationsFolder;
-    private String ApplicationFolder;
-    private String UploadFolder;
-    private String VerifiedDocumentFolder;
+    private String rootCitizensFolderId;
+    private String appUserId;
 
     private int maxCitizensFoldersPerSubfolder;
     private int citizensFolderIterationLookback;
 
     private String citizenMetadataTemplate;
-    private String faSnapMetadataTemplate;
-    private String childCareMetadataTemplate;
+    private String citizenMetadataTemplateScope;
+
+    private String citizenMetadataTemplateFirstName;
+    private String citizenMetadataTemplateLastName;
+    private String citizenMetadataTemplateMpiId;
+    private String citizenMetadataTemplateLogonUserId;
 
     public String getClientID() {
         return clientID;
@@ -72,6 +67,14 @@ public class AppProperties {
         this.passphrase = passphrase;
     }
 
+    public String getAppUserId() {
+        return appUserId;
+    }
+
+    public void setAppUserId(String appUserId) {
+        this.appUserId = appUserId;
+    }
+
     public String getEnterpriseID() {
         return enterpriseID;
     }
@@ -80,76 +83,12 @@ public class AppProperties {
         this.enterpriseID = enterpriseID;
     }
 
-    public String getParentFolderID() {
-        return parentFolderID;
+    public String getRootCitizensFolderId() {
+        return rootCitizensFolderId;
     }
 
-    public void setParentFolderID(String parentFolderID) {
-        this.parentFolderID = parentFolderID;
-    }
-
-    public String getDownloadOneUserID() {
-        return downloadOneUserID;
-    }
-
-    public void setDownloadOneUserID(String downloadOneUserID) {
-        this.downloadOneUserID = downloadOneUserID;
-    }
-
-    public String getDownloadTwoUserID() {
-        return downloadTwoUserID;
-    }
-
-    public void setDownloadTwoUserID(String downloadTwoUserID) {
-        this.downloadTwoUserID = downloadTwoUserID;
-    }
-
-    public String getDownloadThreeUserID() {
-        return downloadThreeUserID;
-    }
-
-    public void setDownloadThreeUserID(String downloadThreeUserID) {
-        this.downloadThreeUserID = downloadThreeUserID;
-    }
-
-    public String getConfidentialFolder() {
-        return ConfidentialFolder;
-    }
-
-    public void setConfidentialFolder(String confidentialFolder) {
-        ConfidentialFolder = confidentialFolder;
-    }
-
-    public String getNotificationsFolder() {
-        return NotificationsFolder;
-    }
-
-    public void setNotificationsFolder(String notificationsFolder) {
-        NotificationsFolder = notificationsFolder;
-    }
-
-    public String getApplicationFolder() {
-        return ApplicationFolder;
-    }
-
-    public void setApplicationFolder(String applicationFolder) {
-        ApplicationFolder = applicationFolder;
-    }
-
-    public String getUploadFolder() {
-        return UploadFolder;
-    }
-
-    public void setUploadFolder(String uploadFolder) {
-        UploadFolder = uploadFolder;
-    }
-
-    public String getVerifiedDocumentFolder() {
-        return VerifiedDocumentFolder;
-    }
-
-    public void setVerifiedDocumentFolder(String verifiedDocumentFolder) {
-        VerifiedDocumentFolder = verifiedDocumentFolder;
+    public void setRootCitizensFolderId(String rootCitizensFolderId) {
+        this.rootCitizensFolderId = rootCitizensFolderId;
     }
 
     public int getMaxCitizensFoldersPerSubfolder() {
@@ -176,20 +115,44 @@ public class AppProperties {
         this.citizenMetadataTemplate = citizenMetadataTemplate;
     }
 
-    public String getFaSnapMetadataTemplate() {
-        return faSnapMetadataTemplate;
+    public String getCitizenMetadataTemplateScope() {
+        return citizenMetadataTemplateScope;
     }
 
-    public void setFaSnapMetadataTemplate(String faSnapMetadataTemplate) {
-        this.faSnapMetadataTemplate = faSnapMetadataTemplate;
+    public void setCitizenMetadataTemplateScope(String citizenMetadataTemplateScope) {
+        this.citizenMetadataTemplateScope = citizenMetadataTemplateScope;
     }
 
-    public String getChildCareMetadataTemplate() {
-        return childCareMetadataTemplate;
+    public String getCitizenMetadataTemplateFirstName() {
+        return citizenMetadataTemplateFirstName;
     }
 
-    public void setChildCareMetadataTemplate(String childCareMetadataTemplate) {
-        this.childCareMetadataTemplate = childCareMetadataTemplate;
+    public void setCitizenMetadataTemplateFirstName(String citizenMetadataTemplateFirstName) {
+        this.citizenMetadataTemplateFirstName = citizenMetadataTemplateFirstName;
+    }
+
+    public String getCitizenMetadataTemplateLastName() {
+        return citizenMetadataTemplateLastName;
+    }
+
+    public void setCitizenMetadataTemplateLastName(String citizenMetadataTemplateLastName) {
+        this.citizenMetadataTemplateLastName = citizenMetadataTemplateLastName;
+    }
+
+    public String getCitizenMetadataTemplateMpiId() {
+        return citizenMetadataTemplateMpiId;
+    }
+
+    public void setCitizenMetadataTemplateMpiId(String citizenMetadataTemplateMpiId) {
+        this.citizenMetadataTemplateMpiId = citizenMetadataTemplateMpiId;
+    }
+
+    public String getCitizenMetadataTemplateLogonUserId() {
+        return citizenMetadataTemplateLogonUserId;
+    }
+
+    public void setCitizenMetadataTemplateLogonUserId(String citizenMetadataTemplateLogonUserId) {
+        this.citizenMetadataTemplateLogonUserId = citizenMetadataTemplateLogonUserId;
     }
 
 }

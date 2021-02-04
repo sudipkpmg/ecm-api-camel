@@ -106,7 +106,7 @@ public class SearchService extends BaseService {
         SearchResult searchResult = new SearchResult();
         searchResult.setFileData(files);
         searchResult.setComplete(Boolean.toString(complete));
-        setupResponse(exchange, "200", searchResult, SearchResult.class);
+        setupResponse(exchange, "200", searchResult);
     }
 
     private FileInfo getItemInfo(BoxItem.Info itemInfo, Metadata folderMetadata) {

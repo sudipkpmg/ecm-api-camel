@@ -44,7 +44,7 @@ public class DeleteDocumentService extends BaseService {
 
         DocumentDeletionResult documentDeletionResult = new DocumentDeletionResult();
         documentDeletionResult.setMessage("document successfully deleted");
-        setupResponse(exchange, "200", documentDeletionResult, DocumentDeletionResult.class);
+        setupResponse(exchange, "200", documentDeletionResult);
     }
 
 }

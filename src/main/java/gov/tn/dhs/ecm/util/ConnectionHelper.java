@@ -30,7 +30,6 @@ public class ConnectionHelper {
                 passphrase
         );
         BoxDeveloperEditionAPIConnection api = BoxDeveloperEditionAPIConnection.getAppEnterpriseConnection(boxConfig);
-//        api.asUser(appProperties.getDownloadOneUserID());
         return api;
     }
 

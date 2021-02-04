@@ -35,42 +35,30 @@ public class CreateFolderService extends BaseService {
     }
 
     public void process(Exchange exchange) {
+        CitizenMetadata citizenMetadata = exchange.getIn().getBody(CitizenMetadata.class);
         try {
             BoxDeveloperEditionAPIConnection api = getBoxApiConnection();
+            api.asUser(appProperties.getAppUserId());
 
-            CitizenMetadata citizenMetadata = exchange.getIn().getBody(CitizenMetadata.class);
             String firstName = citizenMetadata.getFirstName();
             String lastName = citizenMetadata.getLastName();
-            String ssn4 = citizenMetadata.getSsn4();
-            String sysID = citizenMetadata.getSysId();
-            String mpiID = citizenMetadata.getMpiId();
+            String mpiId = citizenMetadata.getMpiId();
             String logonUser = citizenMetadata.getLogonUserId();
-            LocalDate dateOfBirth = citizenMetadata.getDob();
-            String dob = null;
-            if (dateOfBirth != null) {
-                String ts = "T00:00:00-00:00";
-                dob = String.format("%s%s", dateOfBirth.toString(), ts);
-            }
-
-            String parentFolderId = appProperties.getParentFolderID();
-            BoxFolder parentFolder = new BoxFolder(api, parentFolderId);
 
             String folderName = null;
-            if (!isNullOrEmpty(mpiID)) {
-                folderName = "mpi-id-".concat(mpiID);
-            } else if (!isNullOrEmpty(sysID)) {
-                folderName = "sys-id-".concat(sysID);
+            if (!isNullOrEmpty(mpiId)) {
+                folderName = "mpi-id-".concat(mpiId);
             }
             if (folderName == null) {
                 setupError("400", "Some of the parameters are missing or not valid");
             }
 
-            boolean citizensFolderByIdExists = this.checkIfCitizensFolderExists(api, appProperties.getParentFolderID(), mpiID, sysID);
+            boolean citizensFolderByIdExists = this.checkIfCitizensFolderExists(api, appProperties.getRootCitizensFolderId(), mpiId);
             if (citizensFolderByIdExists) {
                 setupError("409", "Folder already exists!");
             }
 
-            String appUserName = lastName.concat(folderName);
+            String appUserName = lastName.concat("-" + folderName);
 
             if (isNullOrEmpty(folderName) || isNullOrEmpty(lastName) || isNullOrEmpty(firstName) || isNullOrEmpty(logonUser)) {
                 setupError("400", "Some of the parameters are missing or not valid");
@@ -94,66 +82,18 @@ public class CreateFolderService extends BaseService {
             // Apply metadata
             final JsonObject jsonObject = new JsonObject();
 
-            jsonObject.add("FirstName", firstName);
-            jsonObject.add("LastName", lastName);
-            jsonObject.add("mpiid", mpiID);
-            jsonObject.add("logonuserid", logonUser);
-            jsonObject.add("sysid", sysID);
-            jsonObject.add("dob1", dob);
+            jsonObject.add(appProperties.getCitizenMetadataTemplateFirstName(), firstName);
+            jsonObject.add(appProperties.getCitizenMetadataTemplateLastName(), lastName);
+            jsonObject.add(appProperties.getCitizenMetadataTemplateMpiId(), mpiId);
+            jsonObject.add(appProperties.getCitizenMetadataTemplateLogonUserId(), logonUser);
 
-            if (!isNullOrEmpty(ssn4)) {
-                jsonObject.add("last4ofssn", ssn4);
-            }
-
+            String scope = appProperties.getCitizenMetadataTemplateScope();
             Metadata metadata = new Metadata(jsonObject);
-            boxFolder.createMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE, metadata);
+            boxFolder.createMetadata(appProperties.getCitizenMetadataTemplate(), scope, metadata);
             // System.out.println("Metadata applied to the folder");
 
-            // Child folder structure
-            BoxFolder.Info childConfidentialFolderInfo = boxFolder.createFolder(appProperties.getConfidentialFolder());
-            String childConfidentialFolderID = childConfidentialFolderInfo.getID();
-            // System.out.println("Child 1 Folder ID: " + childConfidentialFolderID);
-
-            BoxFolder.Info childNotificationsFolderInfo = boxFolder.createFolder(appProperties.getNotificationsFolder());
-            String childNotificationsFolderID = childNotificationsFolderInfo.getID();
-            // System.out.println("Child 2 Folder ID: " + childNotificationsFolderID);
-
-            BoxFolder.Info childApplicationFolderInfo = boxFolder.createFolder(appProperties.getApplicationFolder());
-            String childApplicationFolderID = childApplicationFolderInfo.getID();
-            // System.out.println("Child 3 Folder ID: " + childApplicationFolderID);
-
-            BoxFolder.Info childUploadFolderInfo = boxFolder.createFolder(appProperties.getUploadFolder());
-            String childUploadFolderID = childUploadFolderInfo.getID();
-            // System.out.println("Child 4 Folder ID: " + childUploadFolderID);
-
-            BoxFolder.Info childVerifiedDocumentFolderInfo = boxFolder.createFolder(appProperties.getVerifiedDocumentFolder());
-            String childVerifiedDocumentFolderID = childVerifiedDocumentFolderInfo.getID();
-            // System.out.println("Child 5 Folder ID: " + childVerifiedDocumentFolderID);
-
-            // Apply metadata
-            BoxFolder conf = new BoxFolder(api, childConfidentialFolderID);
-            conf.createMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE, metadata);
-            // System.out.println("Metadata applied to the folder: conf");
-
-            BoxFolder notif = new BoxFolder(api, childNotificationsFolderID);
-            notif.createMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE, metadata);
-            // System.out.println("Metadata applied to the folder: notif");
-
-            BoxFolder appl = new BoxFolder(api, childApplicationFolderID);
-            appl.createMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE, metadata);
-            // System.out.println("Metadata applied to the folder: appl");
-
-            BoxFolder upload = new BoxFolder(api, childUploadFolderID);
-            upload.createMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE, metadata);
-            // System.out.println("Metadata applied to the folder: upload");
-
-            BoxFolder verif = new BoxFolder(api, childVerifiedDocumentFolderID);
-            verif.createMetadata(CITIZEN_METADATA_TEMPLATE, CITIZEN_METADATA_SCOPE, metadata);
-            // System.out.println("Metadata applied to the folder: verif");
-
-
             // Create Metadata Cascade Policy on folder
-            boxFolder.addMetadataCascadePolicy(CITIZEN_METADATA_SCOPE, CITIZEN_METADATA_TEMPLATE);
+            boxFolder.addMetadataCascadePolicy(scope, appProperties.getCitizenMetadataTemplate());
             // Note: Why not just use metadata cascade policy for the above metadata creation?
             // Because the Box Metadata Cascade Policy is quite unreliable. In manual testing as
             // of September 2020, it doesn't even reliably apply the metadata on the five children
@@ -164,9 +104,9 @@ public class CreateFolderService extends BaseService {
             FolderCreationSuccessResponse folderCreationSuccessResponse = new FolderCreationSuccessResponse();
             folderCreationSuccessResponse.setAppUserId(createdAppUserInfo.getID());
             folderCreationSuccessResponse.setFolderId(folderID);
-            setupResponse(exchange, "200", folderCreationSuccessResponse, FolderCreationSuccessResponse.class);
+            setupResponse(exchange, "200", folderCreationSuccessResponse);
         } catch (BoxAPIException e) {
-            String code = Integer.toString(e.getResponseCode());
+            int code = e.getResponseCode();
             String message = "Internal server error";
             switch (e.getResponseCode()) {
                 case 400:
@@ -182,7 +122,7 @@ public class CreateFolderService extends BaseService {
                     message = "Folder already exists";
                     break;
             }
-            setupError(code, message);
+            setupError(Integer.toString(code), message);
         }
     }
 
@@ -237,7 +177,7 @@ public class CreateFolderService extends BaseService {
 
     private BoxFolder.Info createCitizensFolder(BoxDeveloperEditionAPIConnection api, String name) {
         // The root of all Citizens Folders
-        BoxFolder rootNode = new BoxFolder(api, appProperties.getParentFolderID());
+        BoxFolder rootNode = new BoxFolder(api, appProperties.getRootCitizensFolderId());
 
         BoxFolder.Info superNode = this.getSuperNode(api, rootNode);
 
@@ -304,8 +244,8 @@ public class CreateFolderService extends BaseService {
     }
 
     /**
-     * Use Box's Metadata query ability to check if the Citizen's folder for the given mpi id or sys id already exists.
-     * Returns true if any files/folders in the root citizens folder exist with the given mpi id or sys id, and false otherwise.
+     * Use Box's Metadata query ability to check if the Citizen's folder for the given mpi id already exists.
+     * Returns true if any files/folders in the root citizens folder exist with the given mpi id, and false otherwise.
      *
      * The Box API will return accurate results as soon as metadata has been added, removed, updated or deleted for a file or folder
      *     https://developer.box.com/guides/metadata/queries/comparison/
@@ -315,27 +255,32 @@ public class CreateFolderService extends BaseService {
      *
      * Todo: Call in to Box Support to request the query index needed.
      */
-    private boolean checkIfCitizensFolderExists(BoxDeveloperEditionAPIConnection api, String rootCitizensFolderId, String mpiId, String sysId) {
-        MetadataTemplate metadataTemplate = MetadataTemplate.getMetadataTemplate(api, appProperties.getCitizenMetadataTemplate());
+    private boolean checkIfCitizensFolderExists(BoxDeveloperEditionAPIConnection api, String rootCitizensFolderId, String mpiId) {
+        String citizenMetadataTemplate = appProperties.getCitizenMetadataTemplate();
+        MetadataTemplate metadataTemplate = null;
+        try {
+            metadataTemplate = MetadataTemplate.getMetadataTemplate(api, citizenMetadataTemplate);
+        } catch (BoxAPIException e) {
+            e.printStackTrace();
+        }
         String metadataScope = metadataTemplate.getScope();
         String from = String.format("%s.%s", metadataScope, appProperties.getCitizenMetadataTemplate());
 
         String query = "";
         JsonObject queryParameters = new JsonObject();
-        if ((mpiId != null && mpiId.length() > 0) && (sysId != null && sysId.length() > 0)) {
-            query = "mpiid = :mpiidArg OR sysid = :sysidArg";
-            queryParameters.add("mpiidArg", mpiId).add("sysidArg", sysId);
-        } else if (mpiId != null && mpiId.length() > 0) {
-            query = "mpiid = :mpiidArg";
+        if ( (mpiId != null) && (mpiId.length() > 0) ) {
+            query = appProperties.getCitizenMetadataTemplateMpiId() + " = :mpiidArg";
             queryParameters.add("mpiidArg", mpiId);
-        } else if (sysId != null && sysId.length() > 0) {
-            query = "sysid = :sysidArg";
-            queryParameters.add("sysidArg", sysId);
         } else {
             return false;
         }
 
-        BoxResourceIterable<BoxMetadataQueryItem> results = MetadataTemplate.executeMetadataQuery(api, from, query, queryParameters, rootCitizensFolderId);
+        BoxResourceIterable<BoxMetadataQueryItem> results = null;
+        try {
+            results = MetadataTemplate.executeMetadataQuery(api, from, query, queryParameters, rootCitizensFolderId);
+        } catch (Exception e) {
+            return false;
+        }
         return results.iterator().hasNext();
     }
 
